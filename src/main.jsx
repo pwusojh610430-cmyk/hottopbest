@@ -6,6 +6,12 @@ import {
   Sparkles, WandSparkles, X, Zap
 } from 'lucide-react'
 import './styles.css'
+import seoStrategyImg from './assets/articles/seo-strategy.png'
+import aiVisibilityImg from './assets/articles/ai-visibility.png'
+import seoToolkitImg from './assets/articles/seo-toolkit.png'
+import backlinksImg from './assets/articles/backlinks.png'
+import trafficImg from './assets/articles/website-traffic.png'
+import competitorImg from './assets/articles/competitor-analysis.png'
 
 const categories = ['All tools', 'SEO', 'Writing', 'Image', 'Marketing', 'Developer']
 
@@ -20,10 +26,15 @@ const tools = [
   { name: 'Content Rewriter', description: 'Improve clarity, tone, and flow while preserving your meaning.', category: 'Writing', icon: Sparkles, color: 'purple' },
 ]
 
-const articles = [
-  { tag: 'AI SEARCH', title: 'How to make your website visible to AI agents', read: '8 min read', tone: 'indigo' },
-  { tag: 'TECHNICAL SEO', title: 'The practical on-page SEO checklist for 2026', read: '12 min read', tone: 'green' },
-  { tag: 'CONTENT', title: 'Build a content workflow that humans actually enjoy', read: '10 min read', tone: 'coral' },
+const editorialArticles = [
+  { tag:'SEO STRATEGY', title:'How to Build an Effective SEO Strategy in 2026', excerpt:'A focused plan for earning traffic, trust, and visibility across Google, AI search, YouTube, and communities.', read:'14 min read', image:seoStrategyImg, author:'Maya Chen', featured:true,
+    sections:[['Start with the outcome','A useful SEO strategy begins with the business result you want—not a list of keywords. Define the audience, the decision you want to influence, and the evidence that will show progress.'],['Build a topic system','Group customer questions into a small number of themes. Create one dependable resource for each core theme, then support it with narrower guides that answer specific follow-up questions.'],['Measure useful progress','Track qualified visits, assisted conversions, branded discovery, citations, and returning readers. Rankings are a signal, but sustainable growth comes from helping the right people make a decision.']]},
+  { tag:'TOOLS', title:'12 Free SEO Tools We Use Every Week', excerpt:'A lean toolkit for auditing pages, improving content, and keeping technical problems under control.', read:'11 min read', image:seoToolkitImg, author:'Noah Williams', sections:[['Choose tools around jobs','A long tool list creates more work. Start with the recurring jobs your team actually has: checking pages, validating structured data, compressing images, and planning content.'],['Create a simple stack','Use one primary tool for each job and document when to use it. A consistent workflow produces more reliable decisions than switching dashboards every week.'],['Review the stack quarterly','Remove tools that duplicate another product or no longer change decisions. Keep the workflow light enough that everyone can follow it.']]},
+  { tag:'AI SEARCH', title:'Generative Engine Optimization: A Practical Guide', excerpt:'Make your content easier for answer engines to understand, retrieve, and cite accurately.', read:'13 min read', image:aiVisibilityImg, author:'Maya Chen', sections:[['Write for retrieval','Use descriptive headings, concise definitions, direct answers, and clear relationships between entities. This helps readers and machines understand the page quickly.'],['Make evidence visible','Support important claims with original experience, named sources, dates, and transparent methodology. Citation-worthy content is specific and easy to verify.'],['Strengthen your brand entity','Keep your organization name, expertise, people, and topical focus consistent across your website and trusted third-party profiles.']]},
+  { tag:'AI VISIBILITY', title:'How to Earn More Brand Mentions in AI Answers', excerpt:'A modern visibility strategy built on useful expertise, credible citations, and consistent entities.', read:'10 min read', image:aiVisibilityImg, author:'Leila Morgan', sections:[['Own a clear subject','Brands become memorable when they repeatedly contribute useful information to a focused subject. Pick the conversations where your experience is genuinely distinctive.'],['Publish source material','Original research, practical tools, definitions, and expert examples give publishers and AI systems something concrete to reference.'],['Build distributed authority','Contribute to respected publications, communities, podcasts, and industry resources where your audience already learns.']]},
+  { tag:'LINK BUILDING', title:'The New Rules of High-Quality Backlinks', excerpt:'Build authority through relevant editorial mentions instead of chasing arbitrary link scores.', read:'12 min read', image:backlinksImg, author:'Noah Williams', sections:[['Relevance before metrics','A mention inside a trusted, topically relevant article is more meaningful than a random link from a high-scoring domain. Evaluate the full editorial context.'],['Create reasons to cite','Data, useful tools, strong visual explanations, and first-hand expertise make outreach easier because the asset adds real value to the publisher’s page.'],['Protect long-term trust','Avoid automated placements, disguised sponsorships, and irrelevant exchanges. Sustainable authority compounds because real people choose to reference your work.']]},
+  { tag:'GROWTH', title:'28 Practical Ways to Increase Website Traffic', excerpt:'A prioritized collection of acquisition ideas for search, partnerships, community, and retention.', read:'16 min read', image:trafficImg, author:'Sofia Patel', sections:[['Fix the path you already have','Improve pages that receive impressions but few clicks, update high-potential articles, and strengthen internal links before producing more content.'],['Add distribution to creation','Every substantial article needs a distribution plan: newsletter, community contribution, partner outreach, social derivatives, and direct follow-up with people quoted.'],['Turn visitors into an audience','Offer a genuinely useful reason to return. A focused newsletter, saved reports, and repeatable free tools make traffic more durable.']]},
+  { tag:'COMPETITOR RESEARCH', title:'A Better AI + SEO Competitor Analysis', excerpt:'Find strategic gaps and audience needs without simply copying competitors’ keywords.', read:'15 min read', image:competitorImg, author:'Leila Morgan', sections:[['Compare customer journeys','Review how competitors address awareness, evaluation, and decision-stage questions. Missing steps often reveal better opportunities than missing keywords.'],['Inspect proof and differentiation','Look at examples, data, experts, tools, and product experience. Identify what would make your answer more useful and credible—not merely longer.'],['Choose where to be different','Use the research to make a deliberate choice about format, audience, point of view, or utility. The goal is a stronger alternative, not a replica.']]},
 ]
 
 const articleLibrary = {
@@ -212,7 +223,20 @@ function Workflow() {
 }
 
 function Learn() {
-  return <section className="learn" id="learn"><div className="section-head"><div><span className="section-kicker">LEARN & GROW</span><h2>Clear advice.<br/>Real results.</h2></div><a href="#learn">Browse all guides <ArrowRight size={17}/></a></div><div className="article-grid">{articles.map((a,i)=><article key={a.title}><div className={`article-art ${a.tone}`}>{i===0?<Bot/>:i===1?<ShieldCheck/>:<Layers3/>}<span>{i===0?'AI':i===1?'92':'Aa'}</span></div><small>{a.tag}</small><h3>{a.title}</h3><p>{a.read} <ArrowRight size={15}/></p></article>)}</div></section>
+  const [selected, setSelected] = useState(null)
+  const featured = editorialArticles[0]
+  const highlights = editorialArticles.slice(1,5)
+  const picks = [editorialArticles[4], editorialArticles[5], editorialArticles[1], editorialArticles[6], editorialArticles[2], editorialArticles[3]]
+  return <section className="learn editorial" id="learn">
+    <div className="editorial-label"><span className="section-kicker">FEATURED ARTICLES</span><a href="#articles">Browse the full library <ArrowRight size={16}/></a></div>
+    <div className="featured-layout">
+      <button className="featured-story" onClick={()=>setSelected(featured)}><img src={featured.image} alt="Illustration of an SEO strategy workspace"/><span>{featured.tag}</span><h2>{featured.title}</h2><p>{featured.excerpt}</p><small>By {featured.author} · {featured.read}</small></button>
+      <div className="highlight-list">{highlights.map(article=><button onClick={()=>setSelected(article)} key={article.title}><img src={article.image} alt=""/><span><small>{article.tag}</small><b>{article.title}</b><em>{article.read}</em></span></button>)}</div>
+    </div>
+    <div className="editors-heading"><h2>Editor’s Picks</h2><p>Our most useful guides on AI visibility, content, search, and sustainable growth—hand-picked by the editors.</p></div>
+    <div className="editors-grid">{picks.map((article,index)=><button onClick={()=>setSelected(article)} key={`${article.title}-${index}`}><img src={article.image} alt=""/><span><small>{article.tag}</small><b>{article.title}</b><em>{article.read} <ArrowRight size={14}/></em></span></button>)}</div>
+    {selected && <div className="reader-backdrop" onClick={()=>setSelected(null)}><article className="article-reader" onClick={e=>e.stopPropagation()}><button className="reader-close" onClick={()=>setSelected(null)} aria-label="Close article"><X/></button><img src={selected.image} alt=""/><div className="reader-body"><small>{selected.tag} · {selected.read}</small><h1>{selected.title}</h1><p className="reader-deck">{selected.excerpt}</p><div className="reader-author">Written by <b>{selected.author}</b> · Updated August 2026</div>{selected.sections.map(([heading,body],i)=><section key={heading}><span>0{i+1}</span><div><h2>{heading}</h2><p>{body}</p></div></section>)}<div className="reader-takeaway"><Sparkles/><div><b>The practical takeaway</b><p>Choose one idea from this guide, apply it to a real page this week, and record the result. Small, measured improvements compound into a durable growth system.</p></div></div></div></article></div>}
+  </section>
 }
 
 function ArticlesHub() {
