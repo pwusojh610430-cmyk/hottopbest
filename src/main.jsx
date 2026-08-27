@@ -26,6 +26,78 @@ const articles = [
   { tag: 'CONTENT', title: 'Build a content workflow that humans actually enjoy', read: '10 min read', tone: 'coral' },
 ]
 
+const articleLibrary = {
+  'Popular': [
+    ['AI Search Strategy', 'A practical framework for earning mentions across AI answers.'],
+    ['Build an AI-Ready Brand', 'Make your expertise easier for search systems to understand and trust.'],
+    ['Generative Engine Optimization', 'Grow visibility where AI-generated answers shape decisions.'],
+    ['What Is SEO?', 'A plain-English introduction to modern search optimization.'],
+    ['17 Fast SEO Improvements', 'High-impact fixes you can make without rebuilding your website.'],
+    ['The Complete SEO Checklist', 'A repeatable process covering content, technical health, and trust.'],
+    ['SEO Strategy From Scratch', 'Turn business goals into a focused, measurable search roadmap.'],
+    ['Competitor Research That Helps', 'Find useful gaps without blindly copying another website.'],
+    ['E-E-A-T in the AI Era', 'Show real experience, expertise, authority, and trust on every page.'],
+    ['Internal Linking Made Simple', 'Build clearer paths for visitors, crawlers, and AI agents.'],
+    ['Technical SEO Essentials', 'The technical foundations every healthy website needs.'],
+    ['On-Page SEO Blueprint', 'Optimize intent, structure, usability, and conversions together.'],
+  ],
+  'AI Search': [
+    ['AI Search Optimization', 'How answer engines discover, interpret, and cite useful sources.'],
+    ['AI Visibility Audit', 'Measure whether your brand is ready to appear in generated answers.'],
+    ['Create a Useful llms.txt', 'Guide AI agents toward your most important public resources.'],
+    ['Entity SEO for Brands', 'Build a consistent machine-readable identity across the web.'],
+    ['Content AI Can Cite', 'Structure evidence, definitions, and examples for reliable extraction.'],
+    ['AI Crawler Readiness', 'Check access rules, rendering, structured data, and page clarity.'],
+    ['Prompt-Led Audience Research', 'Use real customer questions to plan stronger content.'],
+    ['AI Overviews Explained', 'Understand how generated search experiences change organic discovery.'],
+    ['Human-First AI Content', 'Use automation without publishing generic or untrustworthy work.'],
+  ],
+  'SEO Fundamentals': [
+    ['How Search Engines Work', 'Crawling, indexing, ranking, and retrieval in one clear guide.'],
+    ['Search Intent', 'Identify what people really need before you create a page.'],
+    ['Keyword Research Basics', 'Find focused topics without relying on expensive datasets.'],
+    ['SEO-Friendly Website Design', 'Plan navigation, templates, and page hierarchy for discovery.'],
+    ['Title Tags and Descriptions', 'Write snippets that are accurate, helpful, and click-worthy.'],
+    ['SEO-Friendly URLs', 'Create short, descriptive addresses that age well.'],
+    ['Core Web Vitals', 'Improve loading, responsiveness, and visual stability.'],
+    ['Canonical Tags', 'Prevent duplicate-page confusion with correct canonical signals.'],
+    ['Robots and Sitemaps', 'Help crawlers reach the right pages efficiently.'],
+  ],
+  'Content Marketing': [
+    ['Content Strategy', 'Connect audience needs, business value, and a realistic publishing plan.'],
+    ['Write a Useful Blog Post', 'A start-to-finish workflow for research, drafting, and editing.'],
+    ['Build a Content Calendar', 'Plan consistent output without sacrificing quality.'],
+    ['Refresh Old Content', 'Decide what to update, merge, redirect, or remove.'],
+    ['Original Research', 'Turn first-party insights into content people want to reference.'],
+    ['Content Distribution', 'Give every article a practical promotion plan.'],
+    ['Repurpose Without Repeating', 'Adapt one strong idea for multiple useful formats.'],
+    ['Writing for Readability', 'Make complex ideas easier to scan and understand.'],
+    ['Content Brief Template', 'Align writers, editors, search intent, and business goals.'],
+  ],
+  'Link Building': [
+    ['Link Building Fundamentals', 'Earn relevant editorial mentions that build lasting authority.'],
+    ['What Makes a Good Backlink?', 'Evaluate relevance, credibility, context, and placement.'],
+    ['Digital PR for Small Teams', 'Create pitchable stories without a large communications budget.'],
+    ['Resource Page Outreach', 'Find useful collections and propose genuinely helpful additions.'],
+    ['Broken Link Building', 'Replace outdated references with stronger, current resources.'],
+    ['Linkable Assets', 'Design research, tools, and guides that naturally earn citations.'],
+    ['Outreach Emails That Respect Time', 'Write concise pitches with a clear reason to care.'],
+    ['Unlinked Brand Mentions', 'Turn existing recognition into stronger references and relationships.'],
+    ['Backlink Quality Audit', 'Review your link profile without relying on one vanity score.'],
+  ],
+  'Marketing': [
+    ['Digital Marketing Basics', 'Choose channels that match your audience and business model.'],
+    ['Conversion-Focused Landing Pages', 'Move from attention to action with clear page structure.'],
+    ['Email List Growth', 'Build a useful newsletter people are happy to receive.'],
+    ['SaaS Content Marketing', 'Create content for complex, research-heavy buying journeys.'],
+    ['Marketing Analytics', 'Measure useful outcomes instead of collecting vanity metrics.'],
+    ['Customer Research', 'Turn interviews and support conversations into better positioning.'],
+    ['Social Content Systems', 'Build a repeatable workflow for useful short-form content.'],
+    ['Product-Led SEO', 'Use templates, tools, and data to create valuable landing pages.'],
+    ['Brand Positioning', 'Explain who you help, what changes, and why your approach is different.'],
+  ]
+}
+
 function Logo() {
   return <a className="logo" href="#top" aria-label="HotTopBest home">
     <span className="logo-mark"><span /><span /><span /></span>
@@ -35,11 +107,14 @@ function Logo() {
 
 function Header() {
   const [open, setOpen] = useState(false)
+  const [articlesOpen, setArticlesOpen] = useState(false)
+  const [articleCategory, setArticleCategory] = useState('Popular')
   return <header className="header">
     <div className="nav-wrap">
       <Logo />
       <button className="menu-btn" onClick={() => setOpen(!open)} aria-label="Toggle menu">{open ? <X /> : <Menu />}</button>
       <nav className={open ? 'nav open' : 'nav'}>
+        <button className={articlesOpen ? 'nav-link active' : 'nav-link'} onClick={() => setArticlesOpen(!articlesOpen)}>Articles <ChevronDown size={15} /></button>
         <a href="#tools">AI Tools</a>
         <a href="#checker">SEO Tools</a>
         <a href="#learn">Learn</a>
@@ -47,6 +122,13 @@ function Header() {
       </nav>
       <a className="nav-cta" href="#tools">Explore free tools <ArrowRight size={16} /></a>
     </div>
+    {articlesOpen && <div className="mega-menu">
+      <div className="mega-inner">
+        <aside><div className="mega-title">Articles</div>{Object.keys(articleLibrary).map(name=><button key={name} className={articleCategory===name?'active':''} onMouseEnter={()=>setArticleCategory(name)} onClick={()=>setArticleCategory(name)}>{name}<ArrowRight size={15}/></button>)}</aside>
+        <div className="mega-content"><div className="mega-content-head"><span>{articleCategory}</span><a href="#articles" onClick={()=>setArticlesOpen(false)}>View all articles <ArrowRight size={15}/></a></div><div className="mega-links">{articleLibrary[articleCategory].map(([title,desc])=><a href="#articles" onClick={()=>setArticlesOpen(false)} key={title}><b>{title}</b><span>{desc}</span></a>)}</div><div className="mega-promo"><span><b>Free growth tools:</b> Practical AI and SEO tools, all in one place.</span><a href="#tools" onClick={()=>setArticlesOpen(false)}>View tools <ArrowRight size={15}/></a></div></div>
+        <button className="mega-close" onClick={()=>setArticlesOpen(false)} aria-label="Close articles menu"><X size={20}/></button>
+      </div>
+    </div>}
   </header>
 }
 
@@ -133,6 +215,18 @@ function Learn() {
   return <section className="learn" id="learn"><div className="section-head"><div><span className="section-kicker">LEARN & GROW</span><h2>Clear advice.<br/>Real results.</h2></div><a href="#learn">Browse all guides <ArrowRight size={17}/></a></div><div className="article-grid">{articles.map((a,i)=><article key={a.title}><div className={`article-art ${a.tone}`}>{i===0?<Bot/>:i===1?<ShieldCheck/>:<Layers3/>}<span>{i===0?'AI':i===1?'92':'Aa'}</span></div><small>{a.tag}</small><h3>{a.title}</h3><p>{a.read} <ArrowRight size={15}/></p></article>)}</div></section>
 }
 
+function ArticlesHub() {
+  const [category, setCategory] = useState('Popular')
+  const [expanded, setExpanded] = useState(null)
+  return <section className="articles-hub" id="articles">
+    <div className="articles-intro"><div><span className="section-kicker">ARTICLES</span><h2>Ideas worth<br/>putting to work.</h2></div><p>Original, practical guides for building visibility across search, AI, and every channel that matters.</p></div>
+    <div className="article-browser">
+      <aside>{Object.keys(articleLibrary).map(name=><button className={category===name?'active':''} onClick={()=>{setCategory(name);setExpanded(null)}} key={name}>{name}<ArrowRight size={15}/></button>)}</aside>
+      <div className="article-list"><div className="article-list-head"><span>{category}</span><small>{articleLibrary[category].length} GUIDES</small></div>{articleLibrary[category].map(([title,desc],index)=><article className={expanded===index?'expanded':''} key={title} onClick={()=>setExpanded(expanded===index?null:index)}><div><span>{String(index+1).padStart(2,'0')}</span><div><h3>{title}</h3><p>{desc}</p></div><ArrowRight/></div>{expanded===index&&<section className="article-preview"><p><b>What you’ll learn:</b> This guide gives you a clear process you can apply immediately, with practical checks, examples, and decisions for each stage.</p><ul><li>Understand the core idea without unnecessary jargon.</li><li>Follow a focused step-by-step workflow.</li><li>Avoid the mistakes that waste the most time.</li></ul><button>Full guide coming soon <Sparkles size={15}/></button></section>}</article>)}</div>
+    </div>
+  </section>
+}
+
 function Newsletter() {
   const [done,setDone]=useState(false)
   return <section className="newsletter"><div><span className="section-kicker light">THE SMARTER GROWTH LETTER</span><h2>One useful idea,<br/>every Tuesday.</h2></div>{done?<div className="thanks"><Check/> You’re on the list. Welcome!</div>:<form onSubmit={e=>{e.preventDefault();setDone(true)}}><p>Join creators and marketers getting practical AI and SEO tips—no noise, no hype.</p><div><input type="email" required placeholder="you@email.com"/><button>Subscribe <ArrowRight size={17}/></button></div><small>Free forever. Unsubscribe anytime.</small></form>}</section>
@@ -142,6 +236,6 @@ function Footer() {
   return <footer><div className="footer-top"><div><Logo/><p>Practical AI and SEO tools<br/>for smarter, sustainable growth.</p></div><div><b>Tools</b><a href="#tools">AI tools</a><a href="#checker">SEO checker</a><a href="#tools">Content tools</a></div><div><b>Resources</b><a href="#learn">Guides</a><a href="#learn">Comparisons</a><a href="#learn">Newsletter</a></div><div><b>Company</b><a href="#top">About</a><a href="#top">Contact</a><a href="#top">Submit a tool</a></div></div><div className="footer-bottom"><span>© 2026 HotTopBest. Built for better work.</span><span><a href="#top">Privacy</a><a href="#top">Terms</a></span></div></footer>
 }
 
-function App(){return <><Header/><main><Hero/><Checker/><Tools/><Workflow/><Learn/><Newsletter/></main><Footer/></>}
+function App(){return <><Header/><main><Hero/><Checker/><Tools/><ArticlesHub/><Workflow/><Learn/><Newsletter/></main><Footer/></>}
 
 createRoot(document.getElementById('root')).render(<App />)
