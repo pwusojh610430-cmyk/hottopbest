@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import {
   ArrowRight, BarChart3, Bot, Braces, Check, ChevronDown, FileText,
   Image, Layers3, Menu, MousePointerClick, Search, ShieldCheck,
-  Sparkles, WandSparkles, X, Zap
+  Sparkles, WandSparkles, X, Zap, Copy, Download, Upload, RotateCcw
 } from 'lucide-react'
 import './styles.css'
 import seoStrategyImg from './assets/articles/seo-strategy.png'
@@ -189,27 +189,88 @@ function Checker() {
   </section>
 }
 
-function ToolCard({ tool }) {
+function ToolCard({ tool, onOpen }) {
   const Icon = tool.icon
   return <article className="tool-card">
     <div className={`tool-icon ${tool.color}`}><Icon size={24}/></div>
     {tool.badge && <span className={`badge ${tool.badge === 'New' ? 'new' : ''}`}>{tool.badge}</span>}
     <span className="tool-category">{tool.category}</span>
     <h3>{tool.name}</h3><p>{tool.description}</p>
-    <button onClick={() => alert(`${tool.name} is included in the product roadmap.`)}>Try it free <ArrowRight size={16}/></button>
+    <button onClick={() => onOpen(tool)}>Try it free <ArrowRight size={16}/></button>
   </article>
+}
+
+const cleanText = text => text.trim().replace(/\s+/g,' ')
+const titleCase = text => cleanText(text).replace(/\b\w/g, c=>c.toUpperCase())
+
+function ToolModal({ tool, onClose }) {
+  const [input,setInput] = useState('')
+  const [extra,setExtra] = useState('')
+  const [result,setResult] = useState('')
+  const [copied,setCopied] = useState(false)
+  const [imageInfo,setImageInfo] = useState(null)
+
+  function run() {
+    const value = cleanText(input)
+    if (!value && tool.name !== 'Image Compressor') return setResult('Please add some information first.')
+    if (tool.name === 'AI Article Outline') {
+      const topic = titleCase(value)
+      setResult(`# ${topic}\n\n## Introduction\n- Define the problem and who this guide helps\n- Explain the outcome readers can expect\n\n## 1. What Is ${topic}?\n- Clear definition\n- Why it matters now\n\n## 2. Before You Get Started\n- Requirements and useful context\n- Common misconceptions\n\n## 3. Step-by-Step Process\n### Step 1: Establish your goal\n### Step 2: Build the foundation\n### Step 3: Put the plan into action\n### Step 4: Review the result\n\n## 4. Common Mistakes to Avoid\n- Mistake one and how to prevent it\n- Mistake two and how to prevent it\n\n## 5. Practical Examples\n- Beginner example\n- Advanced example\n\n## Conclusion\n- Summarize the process\n- Give the reader one clear next action`)
+    } else if (tool.name === 'Meta Description Writer') {
+      const trimmed = value.slice(0,125).replace(/[.!?]?$/, '')
+      setResult(`${trimmed}. Learn the key steps, practical tips, and examples you need to get started today.`.slice(0,160))
+    } else if (tool.name === 'Schema Generator') {
+      setResult(JSON.stringify({'@context':'https://schema.org','@type':extra||'Article','headline':titleCase(value),'description':`A practical guide to ${value.toLowerCase()}.`,'url':'https://example.com/'+value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''),'dateModified':new Date().toISOString().slice(0,10),'author':{'@type':'Organization','name':'HotTopBest'}},null,2))
+    } else if (tool.name === 'llms.txt Generator') {
+      const site = extra || 'https://example.com'
+      setResult(`# ${titleCase(value)}\n\n> ${titleCase(value)} provides practical AI and SEO resources for creators and growing teams.\n\n## Core resources\n- [Home](${site})\n- [Free tools](${site}/tools): Browser-based AI and SEO utilities\n- [Articles](${site}/articles): Practical growth guides\n- [About](${site}/about): Editorial standards and team\n\n## Usage\nPublic pages may be crawled for discovery and citation. Attribute factual claims to the original page URL.\n\n## Contact\n- [Contact](${site}/contact)`)
+    } else if (tool.name === 'Social Post Writer') {
+      setResult(`Most people overcomplicate ${value.toLowerCase()}.\n\nHere’s a simpler approach:\n\n1. Start with one clear outcome\n2. Remove steps that don’t change the result\n3. Measure what your audience actually does\n4. Improve one thing at a time\n\nThe best system is the one your team can repeat.\n\nWhat would you add?\n\n#Marketing #Growth #ContentStrategy`)
+    } else if (tool.name === 'Content Rewriter') {
+      const sentences = input.trim().split(/(?<=[.!?])\s+/).filter(Boolean)
+      setResult(sentences.map(s=>s.replace(/\b(very|really|actually|basically|just)\b\s*/gi,'').replace(/in order to/gi,'to').replace(/due to the fact that/gi,'because')).join(' '))
+    } else if (tool.name === 'SEO Site Checker') {
+      const html = input
+      const tests = [
+        ['Title tag',/<title[^>]*>[^<]{10,65}<\/title>/i.test(html),'Add one descriptive title between 10 and 65 characters.'],
+        ['Meta description',/<meta[^>]+name=["']description["'][^>]+content=["'][^"']{50,170}["']/i.test(html)||/<meta[^>]+content=["'][^"']{50,170}["'][^>]+name=["']description["']/i.test(html),'Add a useful meta description.'],
+        ['Single H1',(html.match(/<h1\b/gi)||[]).length===1,'Use exactly one clear H1.'],
+        ['Canonical URL',/<link[^>]+rel=["']canonical["']/i.test(html),'Add a canonical link element.'],
+        ['Image alt text',!/<img(?![^>]*\balt=)[^>]*>/i.test(html),'Add alt text to informative images.'],
+        ['Language',/<html[^>]+lang=["'][a-z-]+["']/i.test(html),'Declare the page language on the html element.'],
+        ['Mobile viewport',/<meta[^>]+name=["']viewport["']/i.test(html),'Add a responsive viewport meta tag.'],
+        ['Open Graph',/<meta[^>]+property=["']og:title["']/i.test(html),'Add Open Graph metadata for sharing.']]
+      const passed=tests.filter(t=>t[1]).length
+      setResult(`SEO SCORE: ${Math.round(passed/tests.length*100)}/100\n\n${tests.map(([n,ok,fix])=>`${ok?'✓':'✕'} ${n}${ok?' — Passed':` — ${fix}`}`).join('\n')}`)
+    }
+  }
+
+  async function compressImage(e) {
+    const file=e.target.files?.[0]; if(!file)return
+    const img=new window.Image(); const url=URL.createObjectURL(file)
+    img.onload=()=>{const canvas=document.createElement('canvas');const max=1600;const scale=Math.min(1,max/Math.max(img.width,img.height));canvas.width=Math.round(img.width*scale);canvas.height=Math.round(img.height*scale);canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);canvas.toBlob(blob=>{const out=URL.createObjectURL(blob);setImageInfo({name:file.name.replace(/\.[^.]+$/,'.webp'),before:file.size,after:blob.size,url:out})},'image/webp',.78);URL.revokeObjectURL(url)};img.src=url
+  }
+  async function copyResult(){await navigator.clipboard.writeText(result);setCopied(true);setTimeout(()=>setCopied(false),1500)}
+  const help = { 'SEO Site Checker':'Paste the HTML source of a page to check eight essential on-page signals.', 'AI Article Outline':'Enter the topic you want to turn into a structured article.', 'Schema Generator':'Enter an article or page title and choose the schema type.', 'Meta Description Writer':'Describe your page in one sentence.', 'Image Compressor':'Choose an image. It stays in your browser and is never uploaded.', 'llms.txt Generator':'Enter your brand name and website URL.', 'Social Post Writer':'Enter the idea, URL summary, or topic you want to share.', 'Content Rewriter':'Paste text to make it clearer and more concise.'}[tool.name]
+  return <div className="tool-modal-backdrop" onClick={onClose}><section className="tool-modal" onClick={e=>e.stopPropagation()}><button className="tool-modal-close" onClick={onClose}><X/></button><div className={`tool-icon ${tool.color}`}>{React.createElement(tool.icon,{size:26})}</div><small>{tool.category} TOOL</small><h2>{tool.name}</h2><p>{help}</p>
+    {tool.name==='Image Compressor'?<label className="image-drop"><Upload/><b>Select an image</b><span>PNG, JPG or WebP</span><input type="file" accept="image/*" onChange={compressImage}/></label>:<><textarea value={input} onChange={e=>setInput(e.target.value)} placeholder={tool.name==='SEO Site Checker'?'Paste your page HTML here…':'Type or paste your content here…'}/>{tool.name==='Schema Generator'&&<select value={extra} onChange={e=>setExtra(e.target.value)}><option>Article</option><option>Product</option><option>FAQPage</option><option>Organization</option></select>}{tool.name==='llms.txt Generator'&&<input className="extra-input" value={extra} onChange={e=>setExtra(e.target.value)} placeholder="https://yourwebsite.com"/>}<button className="run-tool" onClick={run}><Sparkles size={17}/> Generate result</button></>}
+    {imageInfo&&<div className="image-result"><Check/><div><b>{Math.round((1-imageInfo.after/imageInfo.before)*100)}% smaller</b><span>{(imageInfo.before/1024).toFixed(0)} KB → {(imageInfo.after/1024).toFixed(0)} KB</span></div><a href={imageInfo.url} download={imageInfo.name}><Download/> Download</a></div>}
+    {result&&<div className="tool-result"><div><b>Your result</b><button onClick={copyResult}>{copied?<Check/>:<Copy/>}{copied?'Copied':'Copy'}</button></div><pre>{result}</pre></div>}
+  </section></div>
 }
 
 function Tools() {
   const [category, setCategory] = useState('All tools')
   const [query, setQuery] = useState('')
+  const [activeTool, setActiveTool] = useState(null)
   const filtered = useMemo(() => tools.filter(t => (category === 'All tools' || t.category === category) && `${t.name} ${t.description}`.toLowerCase().includes(query.toLowerCase())), [category, query])
   return <section className="tools-section" id="tools">
     <div className="section-head"><div><span className="section-kicker">TOOLBOX</span><h2>Everything you need<br/>to grow smarter.</h2></div><p>Fast, focused tools. No bloated dashboards.<br/>No complicated setup.</p></div>
     <div className="tool-controls" id="categories"><div className="tabs">{categories.map(c=><button key={c} onClick={()=>setCategory(c)} className={category===c?'active':''}>{c}</button>)}</div><label className="search-box"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search tools"/></label></div>
-    <div className="tool-grid">{filtered.map(tool=><ToolCard key={tool.name} tool={tool}/>)}</div>
+    <div className="tool-grid">{filtered.map(tool=><ToolCard key={tool.name} tool={tool} onOpen={setActiveTool}/>)}</div>
     {!filtered.length && <div className="empty">No tools match your search yet.</div>}
-    <div className="all-tools"><button className="btn dark" onClick={()=>{setCategory('All tools');setQuery('')}}>View all free tools <ArrowRight size={18}/></button><span>40+ tools and growing</span></div>
+    <div className="all-tools"><button className="btn dark" onClick={()=>{setCategory('All tools');setQuery('')}}>View all free tools <ArrowRight size={18}/></button><span>8 tools available now · more coming soon</span></div>
+    {activeTool&&<ToolModal tool={activeTool} onClose={()=>setActiveTool(null)}/>} 
   </section>
 }
 
