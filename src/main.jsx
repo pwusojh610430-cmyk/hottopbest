@@ -126,6 +126,8 @@ const articleLibrary = {
 
 const articleSlug = title => title.toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')
 const articleHref = title => `/articles/${articleSlug(title)}`
+const toolSlug = name => articleSlug(name)
+const toolHref = name => `/tools/${toolSlug(name)}`
 
 function getArticleBySlug(slug) {
   const editorial = editorialArticles.find(item=>articleSlug(item.title)===slug)
@@ -159,11 +161,11 @@ function Header() {
       <Logo />
       <button className="menu-btn" onClick={() => setOpen(!open)} aria-label="Toggle menu">{open ? <X /> : <Menu />}</button>
       <nav className={open ? 'nav open' : 'nav'}>
-        <button className={articlesOpen ? 'nav-link active' : 'nav-link'} onClick={() => setArticlesOpen(!articlesOpen)}>Articles <ChevronDown size={15} /></button>
-        <a href="/#tools">AI Tools</a>
+        <span className="nav-article-group"><a href="/learn">Articles</a><button className={articlesOpen ? 'nav-chevron active' : 'nav-chevron'} onClick={() => setArticlesOpen(!articlesOpen)} aria-label="Open article categories"><ChevronDown size={15} /></button></span>
+        <a href="/ai-tools">AI Tools</a>
         <a href="/seo-tools">SEO Tools</a>
         <a href="/learn">Learn</a>
-        <a href="/#categories">Categories <ChevronDown size={15} /></a>
+        <a href="/categories">Categories <ChevronDown size={15} /></a>
       </nav>
       <a className="nav-cta" href="/seo-tools">Explore free tools <ArrowRight size={16} /></a>
     </div>
@@ -185,8 +187,8 @@ function Hero() {
       <h1>Smarter tools.<br/><em>Better growth.</em></h1>
       <p>Free, practical AI and SEO tools that help you create better content, fix your website, and grow with confidence.</p>
       <div className="hero-actions">
-        <a className="btn primary" href="#tools">Explore all tools <ArrowRight size={18} /></a>
-        <a className="btn text" href="#checker"><span className="play">▶</span> Run a free site check</a>
+        <a className="btn primary" href="/seo-tools">Explore all tools <ArrowRight size={18} /></a>
+        <a className="btn text" href={toolHref('SEO Site Checker')}><span className="play">▶</span> Run a free site check</a>
       </div>
       <div className="proof"><span className="avatars"><i>MK</i><i>JL</i><i>AR</i><i>+</i></span><span><b>12,000+ creators</b><br/>work smarter every week</span></div>
     </div>
@@ -210,7 +212,7 @@ function Checker() {
   function submit(e) {
     e.preventDefault()
     if (!url.trim()) return setMessage('Enter your website URL to continue.')
-    setMessage('Preview mode — the full scanner will be connected in the next phase.')
+    window.location.assign(`${toolHref('SEO Site Checker')}?url=${encodeURIComponent(url.trim())}`)
   }
   return <section className="checker-wrap" id="checker">
     <div className="checker-copy"><span className="section-kicker">FREE WEBSITE CHECKER</span><h2>See what’s holding<br/>your site back.</h2><p>Check essential SEO and AI-readiness signals, then get a prioritized list of fixes.</p></div>
@@ -223,14 +225,14 @@ function Checker() {
   </section>
 }
 
-function ToolCard({ tool, onOpen }) {
+function ToolCard({ tool }) {
   const Icon = tool.icon
   return <article className="tool-card">
     <div className={`tool-icon ${tool.color}`}><Icon size={24}/></div>
     {tool.badge && <span className={`badge ${tool.badge === 'New' ? 'new' : ''}`}>{tool.badge}</span>}
     <span className="tool-category">{tool.category}</span>
     <h3>{tool.name}</h3><p>{tool.description}</p>
-    <button onClick={() => onOpen(tool)}>Try it free <ArrowRight size={16}/></button>
+    <a className="tool-card-link" href={toolHref(tool.name)}>Try it free <ArrowRight size={16}/></a>
   </article>
 }
 
@@ -296,15 +298,13 @@ function ToolModal({ tool, onClose }) {
 function Tools() {
   const [category, setCategory] = useState('All tools')
   const [query, setQuery] = useState('')
-  const [activeTool, setActiveTool] = useState(null)
   const filtered = useMemo(() => tools.filter(t => (category === 'All tools' || t.category === category) && `${t.name} ${t.description}`.toLowerCase().includes(query.toLowerCase())), [category, query])
   return <section className="tools-section" id="tools">
     <div className="section-head"><div><span className="section-kicker">TOOLBOX</span><h2>Everything you need<br/>to grow smarter.</h2></div><p>Fast, focused tools. No bloated dashboards.<br/>No complicated setup.</p></div>
     <div className="tool-controls" id="categories"><div className="tabs">{categories.map(c=><button key={c} onClick={()=>setCategory(c)} className={category===c?'active':''}>{c}</button>)}</div><label className="search-box"><Search size={18}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search tools"/></label></div>
-    <div className="tool-grid">{filtered.map(tool=><ToolCard key={tool.name} tool={tool} onOpen={setActiveTool}/>)}</div>
+    <div className="tool-grid">{filtered.map(tool=><ToolCard key={tool.name} tool={tool}/>)}</div>
     {!filtered.length && <div className="empty">No tools match your search yet.</div>}
-    <div className="all-tools"><button className="btn dark" onClick={()=>{setCategory('All tools');setQuery('')}}>View all free tools <ArrowRight size={18}/></button><span>8 tools available now · more coming soon</span></div>
-    {activeTool&&<ToolModal tool={activeTool} onClose={()=>setActiveTool(null)}/>} 
+    <div className="all-tools"><a className="btn dark" href="/seo-tools">View all free tools <ArrowRight size={18}/></a><span>8 tools available now · more coming soon</span></div>
   </section>
 }
 
@@ -336,19 +336,17 @@ function Learn() {
 
 function ArticlesHub() {
   const [category, setCategory] = useState('Popular')
-  const [expanded, setExpanded] = useState(null)
   return <section className="articles-hub" id="articles">
     <div className="articles-intro"><div><span className="section-kicker">ARTICLES</span><h2>Ideas worth<br/>putting to work.</h2></div><p>Original, practical guides for building visibility across search, AI, and every channel that matters.</p></div>
     <div className="article-browser">
-      <aside>{Object.keys(articleLibrary).map(name=><button className={category===name?'active':''} onClick={()=>{setCategory(name);setExpanded(null)}} key={name}>{name}<ArrowRight size={15}/></button>)}</aside>
-      <div className="article-list"><div className="article-list-head"><span>{category}</span><small>{articleLibrary[category].length} GUIDES</small></div>{articleLibrary[category].map(([title,desc],index)=><article className={expanded===index?'expanded':''} key={title} onClick={()=>setExpanded(expanded===index?null:index)}><div><span>{String(index+1).padStart(2,'0')}</span><div><h3>{title}</h3><p>{desc}</p></div><ArrowRight/></div>{expanded===index&&<section className="article-preview"><p><b>What you’ll learn:</b> This guide gives you a clear process you can apply immediately, with practical checks, examples, and decisions for each stage.</p><ul><li>Understand the core idea without unnecessary jargon.</li><li>Follow a focused step-by-step workflow.</li><li>Avoid the mistakes that waste the most time.</li></ul><button>Full guide coming soon <Sparkles size={15}/></button></section>}</article>)}</div>
+      <aside>{Object.keys(articleLibrary).map(name=><button className={category===name?'active':''} onClick={()=>setCategory(name)} key={name}>{name}<ArrowRight size={15}/></button>)}</aside>
+      <div className="article-list"><div className="article-list-head"><span>{category}</span><small>{articleLibrary[category].length} GUIDES</small></div>{articleLibrary[category].map(([title,desc],index)=><a className="article-row-link" href={articleHref(title)} key={title}><div><span>{String(index+1).padStart(2,'0')}</span><div><h3>{title}</h3><p>{desc}</p></div><ArrowRight/></div></a>)}</div>
     </div>
   </section>
 }
 
 function Newsletter() {
-  const [done,setDone]=useState(false)
-  return <section className="newsletter"><div><span className="section-kicker light">THE SMARTER GROWTH LETTER</span><h2>One useful idea,<br/>every Tuesday.</h2></div>{done?<div className="thanks"><Check/> You’re on the list. Welcome!</div>:<form onSubmit={e=>{e.preventDefault();setDone(true)}}><p>Join creators and marketers getting practical AI and SEO tips—no noise, no hype.</p><div><input type="email" required placeholder="you@email.com"/><button>Subscribe <ArrowRight size={17}/></button></div><small>Free forever. Unsubscribe anytime.</small></form>}</section>
+  return <section className="newsletter"><div><span className="section-kicker light">THE SMARTER GROWTH LETTER</span><h2>One useful idea,<br/>every Tuesday.</h2></div><form onSubmit={e=>{e.preventDefault();window.location.assign('/newsletter')}}><p>Join creators and marketers getting practical AI and SEO tips—no noise, no hype.</p><div><input type="email" required placeholder="you@email.com"/><button>Subscribe <ArrowRight size={17}/></button></div><small>Free forever. Unsubscribe anytime.</small></form></section>
 }
 
 const seoToolGroups = [
@@ -436,11 +434,31 @@ function FormPage({type}){const[done,setDone]=useState(false);const submit=type=
 const legalContent={privacy:{title:'Privacy Policy',updated:'August 28, 2026',intro:'This policy explains what information HotTopBest collects, why we use it, and the choices available to you.',sections:[['Information you provide','We receive information you submit through contact, newsletter, and tool-submission forms, such as your name, email address, website URL, and message.'],['Browser-based tools','The current image and text tools run in your browser. Content entered into these tools is not intentionally uploaded to our servers by the prototype.'],['Analytics and essential data','A production version may collect limited technical information such as device type, page visits, and error logs to maintain security and improve the service.'],['How information is used','We use submitted information to respond to requests, operate requested services, review tool submissions, prevent abuse, and improve HotTopBest.'],['Your choices','You may unsubscribe from emails at any time and request access, correction, or deletion of personal information by contacting us.']]},terms:{title:'Terms of Use',updated:'August 28, 2026',intro:'These terms describe the rules for using HotTopBest’s website, tools, and editorial resources.',sections:[['Using the service','You may use the site for lawful personal and commercial work. Do not interfere with the service, bypass limits, or use it to distribute harmful or unlawful material.'],['Tool outputs','Generated results are starting points, not professional, legal, financial, or technical guarantees. Review outputs for accuracy and suitability before publishing or relying on them.'],['Editorial content','Articles are provided for general education. Search platforms, AI systems, products, prices, and best practices change over time.'],['Intellectual property','The HotTopBest brand, interface, original illustrations, and editorial materials remain protected. Your submitted content remains yours.'],['Availability and changes','We may modify, suspend, or discontinue features and update these terms as the service develops.']]}}
 function LegalPage({kind}){const data=legalContent[kind];return <><Header/><main className="legal-page"><header><span>LEGAL</span><h1>{data.title}</h1><p>{data.intro}</p><small>Last updated {data.updated}</small></header><article>{data.sections.map(([title,body],i)=><section key={title}><span>0{i+1}</span><div><h2>{title}</h2><p>{body}</p></div></section>)}<div className="legal-contact">Questions about this policy? <a href="/contact">Contact HotTopBest</a>.</div></article></main><Footer/></>}
 
+const categoryDirectory = [
+  {name:'SEO',description:'Audit pages, improve snippets, and build a technically sound website.',icon:Search,href:'/seo-tools'},
+  {name:'AI & Writing',description:'Plan, rewrite, and distribute clearer content with focused AI tools.',icon:Sparkles,href:'/ai-tools'},
+  {name:'AI Search',description:'Learn how answer engines discover, understand, and cite useful sources.',icon:Bot,href:`${articleHref('AI Search Optimization')}`},
+  {name:'Content Marketing',description:'Build a repeatable system for research, creation, editing, and distribution.',icon:FileText,href:'/learn#visual-content-marketing'},
+  {name:'Link Building',description:'Earn relevant editorial mentions through useful resources and outreach.',icon:Layers3,href:'/learn#visual-link-building'},
+  {name:'Developer',description:'Generate structured data and files that help machines understand your site.',icon:Braces,href:toolHref('Schema Generator')},
+]
+
+function CategoriesPage(){return <><Header/><main className="categories-page"><section className="simple-hero"><span className="section-kicker">EXPLORE HOTTOPBEST</span><h1>Find the right resource<br/>for the job.</h1><p>Browse practical tools and complete guides by topic. Every category leads to working utilities, detailed articles, and a clear next step.</p></section><section className="category-directory">{categoryDirectory.map(({name,description,icon:Icon,href},index)=><a href={href} key={name}><span>0{index+1}</span><div className="category-directory-icon"><Icon/></div><h2>{name}</h2><p>{description}</p><b>Explore category <ArrowRight/></b></a>)}</section><section className="category-featured"><div><span className="section-kicker light">START WITH A TASK</span><h2>Not sure where to begin?</h2><p>Check a page for on-page issues, build a useful content outline, or choose a structured learning path.</p></div><div><a href={toolHref('SEO Site Checker')}><Search/><span><b>Check a website</b><small>Review eight essential on-page signals.</small></span><ArrowRight/></a><a href={toolHref('AI Article Outline')}><FileText/><span><b>Plan an article</b><small>Create a search-ready structure in seconds.</small></span><ArrowRight/></a><a href="/learn"><Bot/><span><b>Learn SEO & AI search</b><small>Browse 57 complete visual guides.</small></span><ArrowRight/></a></div></section></main><Footer/></>}
+
+function ToolDetailPage({tool}){
+  const [open,setOpen]=useState(false)
+  if(!tool)return <><Header/><main className="not-found"><span>404</span><h1>We couldn’t find that tool.</h1><a href="/seo-tools">Browse all free tools <ArrowRight/></a></main><Footer/></>
+  const Icon=tool.icon
+  const related=tools.filter(item=>item.name!==tool.name).slice(0,3)
+  const steps=tool.name==='Image Compressor'?['Choose an image from your device.','Compress it privately in your browser.','Download the optimized WebP file.']:['Add the page, topic, or text you want to improve.','Run the focused browser-based generator.','Review, copy, and adapt the result for your project.']
+  return <><Header/><main className="tool-detail-page"><section className="tool-detail-hero"><div><a href="/seo-tools" className="tool-breadcrumb">Tools <span>/</span> {tool.category}</a><div className={`tool-icon ${tool.color}`}><Icon/></div><span className="section-kicker">FREE {tool.category.toUpperCase()} TOOL</span><h1>{tool.name}</h1><p>{tool.description} No account, payment, or proprietary data subscription required.</p><button onClick={()=>setOpen(true)}>Open the tool <ArrowRight/></button><div className="tool-detail-proof"><span><Check/> Free to use</span><span><Check/> No signup</span><span><ShieldCheck/> Browser-based</span></div></div><aside><div className="tool-preview-window"><div><i/><i/><i/><span>hottopbest.com</span></div><Icon/><b>{tool.name}</b><p>Ready when you are.</p><button onClick={()=>setOpen(true)}>Start now</button></div></aside></section><section className="tool-instructions"><div><span className="section-kicker">HOW IT WORKS</span><h2>Finish the task in<br/>three simple steps.</h2><p>This focused workspace is designed for one job, so you can move from input to a useful result without setting up a dashboard.</p></div><ol>{steps.map((step,index)=><li key={step}><span>0{index+1}</span><p>{step}</p></li>)}</ol></section><section className="tool-detail-notes"><article><ShieldCheck/><h3>Your work stays private</h3><p>The current tool processes its input in your browser. It does not require an account or upload content to a paid data provider.</p></article><article><WandSparkles/><h3>Built as a useful starting point</h3><p>Review generated output for accuracy, add your expertise, and adapt it to your audience before publishing.</p></article><article><Zap/><h3>Fast and focused</h3><p>Each tool solves one clearly defined task with a result you can copy, download, or apply immediately.</p></article></section><section className="related-tools"><span className="section-kicker">KEEP WORKING</span><h2>Related free tools</h2><div>{related.map(item=><a href={toolHref(item.name)} key={item.name}><div className={`tool-icon ${item.color}`}>{React.createElement(item.icon,{size:22})}</div><small>{item.category}</small><b>{item.name}</b><p>{item.description}</p><span>Open tool <ArrowRight/></span></a>)}</div></section>{open&&<ToolModal tool={tool} onClose={()=>setOpen(false)}/>}</main><Footer/></>
+}
+
 function Footer() {
   return <footer><div className="footer-top"><div><Logo/><p>Practical AI and SEO tools<br/>for smarter, sustainable growth.</p></div><div><b>Tools</b><a href="/ai-tools">AI tools</a><a href="/seo-tools">SEO checker</a><a href="/ai-tools#content-tools">Content tools</a></div><div><b>Resources</b><a href="/learn">Guides</a><a href="/comparisons">Comparisons</a><a href="/newsletter">Newsletter</a></div><div><b>Company</b><a href="/about">About</a><a href="/contact">Contact</a><a href="/submit-tool">Submit a tool</a></div></div><div className="footer-bottom"><span>© 2026 HotTopBest. Built for better work.</span><span><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span></div></footer>
 }
 
 function HomePage(){return <><Header/><main><Hero/><Checker/><Tools/><ArticlesHub/><Workflow/><Learn/><Newsletter/></main><Footer/></>}
-function App(){const path=window.location.pathname.replace(/\/$/,'');if(path==='/seo-tools')return <SeoToolsPage/>;if(path==='/ai-tools')return <AiToolsPage/>;if(path==='/learn')return <LearnPage/>;if(path==='/comparisons')return <ComparisonsPage/>;if(path==='/newsletter')return <NewsletterPage/>;if(path==='/about')return <AboutPage/>;if(path==='/contact')return <FormPage type="contact"/>;if(path==='/submit-tool')return <FormPage type="submit"/>;if(path==='/privacy')return <LegalPage kind="privacy"/>;if(path==='/terms')return <LegalPage kind="terms"/>;if(path.startsWith('/articles/'))return <ArticlePage article={getArticleBySlug(path.split('/').pop())}/>;return <HomePage/>}
+function App(){const path=window.location.pathname.replace(/\/$/,'');if(path==='/seo-tools')return <SeoToolsPage/>;if(path==='/ai-tools')return <AiToolsPage/>;if(path==='/learn')return <LearnPage/>;if(path==='/categories')return <CategoriesPage/>;if(path==='/comparisons')return <ComparisonsPage/>;if(path==='/newsletter')return <NewsletterPage/>;if(path==='/about')return <AboutPage/>;if(path==='/contact')return <FormPage type="contact"/>;if(path==='/submit-tool')return <FormPage type="submit"/>;if(path==='/privacy')return <LegalPage kind="privacy"/>;if(path==='/terms')return <LegalPage kind="terms"/>;if(path.startsWith('/tools/'))return <ToolDetailPage tool={tools.find(item=>toolSlug(item.name)===path.split('/').pop())}/>;if(path.startsWith('/articles/'))return <ArticlePage article={getArticleBySlug(path.split('/').pop())}/>;return <HomePage/>}
 
 createRoot(document.getElementById('root')).render(<App />)
