@@ -155,17 +155,18 @@ function Logo() {
 function Header() {
   const [open, setOpen] = useState(false)
   const [articlesOpen, setArticlesOpen] = useState(false)
+  const [categoriesOpen, setCategoriesOpen] = useState(false)
   const [articleCategory, setArticleCategory] = useState('Popular')
   return <header className="header">
     <div className="nav-wrap">
       <Logo />
       <button className="menu-btn" onClick={() => setOpen(!open)} aria-label="Toggle menu">{open ? <X /> : <Menu />}</button>
       <nav className={open ? 'nav open' : 'nav'}>
-        <button className={articlesOpen ? 'nav-link active' : 'nav-link'} onClick={() => setArticlesOpen(!articlesOpen)} aria-expanded={articlesOpen} aria-controls="articles-menu">Articles <ChevronDown className={articlesOpen?'chevron-open':''} size={15} /></button>
+        <button className={articlesOpen ? 'nav-link active' : 'nav-link'} onClick={() => {setArticlesOpen(!articlesOpen);setCategoriesOpen(false)}} aria-expanded={articlesOpen} aria-controls="articles-menu">Articles <ChevronDown className={articlesOpen?'chevron-open':''} size={15} /></button>
         <a href="/ai-tools">AI Tools</a>
         <a href="/seo-tools">SEO Tools</a>
         <a href="/learn">Learn</a>
-        <a href="/categories">Categories <ChevronDown size={15} /></a>
+        <button className={categoriesOpen ? 'nav-link active' : 'nav-link'} onClick={() => {setCategoriesOpen(!categoriesOpen);setArticlesOpen(false)}} aria-expanded={categoriesOpen} aria-controls="categories-menu">Categories <ChevronDown className={categoriesOpen?'chevron-open':''} size={15} /></button>
       </nav>
       <a className="nav-cta" href="/seo-tools">Explore free tools <ArrowRight size={16} /></a>
     </div>
@@ -176,6 +177,14 @@ function Header() {
         <button className="mega-close" onClick={()=>setArticlesOpen(false)} aria-label="Close articles menu"><X size={20}/></button>
       </div>
     </div>}
+    {categoriesOpen && <div className="category-menu" id="categories-menu"><div className="category-menu-inner"><div className="category-menu-head"><div><span>EXPLORE BY TOPIC</span><h2>Categories</h2></div><a href="/categories" onClick={()=>setCategoriesOpen(false)}>View all categories <ArrowRight size={15}/></a></div><div className="category-menu-grid">{[
+      ['SEO','Audit and improve website visibility.',Search,'/seo-tools'],
+      ['AI & Writing','Create clearer, more useful content.',Sparkles,'/ai-tools'],
+      ['AI Search','Prepare content for answer engines.',Bot,articleHref('AI Search Optimization')],
+      ['Content Marketing','Build a repeatable publishing system.',FileText,'/learn#visual-content-marketing'],
+      ['Link Building','Earn relevant editorial mentions.',Layers3,'/learn#visual-link-building'],
+      ['Developer','Generate schema and technical files.',Braces,toolHref('Schema Generator')]
+    ].map(([name,description,Icon,href])=><a href={href} onClick={()=>setCategoriesOpen(false)} key={name}><span className="category-menu-icon"><Icon size={19}/></span><span><b>{name}</b><small>{description}</small></span><ArrowRight size={15}/></a>)}</div><button className="mega-close" onClick={()=>setCategoriesOpen(false)} aria-label="Close categories menu"><X size={20}/></button></div></div>}
   </header>
 }
 
