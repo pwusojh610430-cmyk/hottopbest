@@ -118,6 +118,25 @@ const articleLibrary = {
   ]
 }
 
+const articleSlug = title => title.toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')
+const articleHref = title => `/articles/${articleSlug(title)}`
+
+function getArticleBySlug(slug) {
+  const editorial = editorialArticles.find(item=>articleSlug(item.title)===slug)
+  if (editorial) return editorial
+  for (const [category,items] of Object.entries(articleLibrary)) {
+    const found=items.find(([title])=>articleSlug(title)===slug)
+    if(found){const [title,excerpt]=found;return {title,excerpt,tag:category.toUpperCase(),read:'10 min read',author:'HotTopBest Editorial',image:category==='AI Search'?aiVisibilityImg:category==='Link Building'?backlinksImg:category==='Content Marketing'?contentWorkflowImg:category==='SEO Fundamentals'?technicalSeoImg:seoStrategyImg,sections:[
+      ['What this topic means',`${excerpt} The useful starting point is understanding how this idea affects real visitors, how discovery systems interpret the page, and what a strong implementation looks like in practice.`],
+      ['Why it matters now','Search behavior is spreading across traditional results, AI answers, communities, video, and trusted publications. A good strategy connects these surfaces instead of optimizing each one in isolation.'],
+      ['A practical step-by-step approach','Start with one clear outcome. Review what already exists, identify the biggest gap, make one focused improvement, and document the result before expanding the process.'],
+      ['Common mistakes to avoid','Avoid copying competitors without context, optimizing for a score instead of a person, adding tools before defining the job, and publishing claims that readers cannot verify.'],
+      ['How to measure progress','Combine leading indicators such as coverage, technical quality, engagement, and citations with outcomes such as qualified visits, signups, assisted conversions, and returning readers.']
+    ]}}
+  }
+  return null
+}
+
 function Logo() {
   return <a className="logo" href="/" aria-label="HotTopBest home">
     <span className="logo-mark"><span /><span /><span /></span>
@@ -145,7 +164,7 @@ function Header() {
     {articlesOpen && <div className="mega-menu">
       <div className="mega-inner">
         <aside><div className="mega-title">Articles</div>{Object.keys(articleLibrary).map(name=><button key={name} className={articleCategory===name?'active':''} onMouseEnter={()=>setArticleCategory(name)} onClick={()=>setArticleCategory(name)}>{name}<ArrowRight size={15}/></button>)}</aside>
-        <div className="mega-content"><div className="mega-content-head"><span>{articleCategory}</span><a href="#articles" onClick={()=>setArticlesOpen(false)}>View all articles <ArrowRight size={15}/></a></div><div className="mega-links">{articleLibrary[articleCategory].map(([title,desc])=><a href="#articles" onClick={()=>setArticlesOpen(false)} key={title}><b>{title}</b><span>{desc}</span></a>)}</div><div className="mega-promo"><span><b>Free growth tools:</b> Practical AI and SEO tools, all in one place.</span><a href="#tools" onClick={()=>setArticlesOpen(false)}>View tools <ArrowRight size={15}/></a></div></div>
+        <div className="mega-content"><div className="mega-content-head"><span>{articleCategory}</span><a href="/learn" onClick={()=>setArticlesOpen(false)}>View all articles <ArrowRight size={15}/></a></div><div className="mega-links">{articleLibrary[articleCategory].map(([title,desc])=><a href={articleHref(title)} onClick={()=>setArticlesOpen(false)} key={title}><b>{title}</b><span>{desc}</span></a>)}</div><div className="mega-promo"><span><b>Free growth tools:</b> Practical AI and SEO tools, all in one place.</span><a href="/seo-tools" onClick={()=>setArticlesOpen(false)}>View tools <ArrowRight size={15}/></a></div></div>
         <button className="mega-close" onClick={()=>setArticlesOpen(false)} aria-label="Close articles menu"><X size={20}/></button>
       </div>
     </div>}
@@ -300,11 +319,11 @@ function Learn() {
   return <section className="learn editorial" id="learn">
     <div className="editorial-label"><span className="section-kicker">FEATURED ARTICLES</span><a href="/learn">Browse the full library <ArrowRight size={16}/></a></div>
     <div className="featured-layout">
-      <button className="featured-story" onClick={()=>setSelected(featured)}><img src={featured.image} alt="Illustration of an SEO strategy workspace"/><span>{featured.tag}</span><h2>{featured.title}</h2><p>{featured.excerpt}</p><small>By {featured.author} · {featured.read}</small></button>
-      <div className="highlight-list">{highlights.map(article=><button onClick={()=>setSelected(article)} key={article.title}><img src={article.image} alt=""/><span><small>{article.tag}</small><b>{article.title}</b><em>{article.read}</em></span></button>)}</div>
+      <button className="featured-story" onClick={()=>window.location.assign(articleHref(featured.title))}><img src={featured.image} alt="Illustration of an SEO strategy workspace"/><span>{featured.tag}</span><h2>{featured.title}</h2><p>{featured.excerpt}</p><small>By {featured.author} · {featured.read}</small></button>
+      <div className="highlight-list">{highlights.map(article=><button onClick={()=>window.location.assign(articleHref(article.title))} key={article.title}><img src={article.image} alt=""/><span><small>{article.tag}</small><b>{article.title}</b><em>{article.read}</em></span></button>)}</div>
     </div>
     <div className="editors-heading"><h2>Editor’s Picks</h2><p>Our most useful guides on AI visibility, content, search, and sustainable growth—hand-picked by the editors.</p></div>
-    <div className="editors-grid">{picks.map((article,index)=><button onClick={()=>setSelected(article)} key={`${article.title}-${index}`}><img src={article.image} alt=""/><span><small>{article.tag}</small><b>{article.title}</b><em>{article.read} <ArrowRight size={14}/></em></span></button>)}</div>
+    <div className="editors-grid">{picks.map((article,index)=><button onClick={()=>window.location.assign(articleHref(article.title))} key={`${article.title}-${index}`}><img src={article.image} alt=""/><span><small>{article.tag}</small><b>{article.title}</b><em>{article.read} <ArrowRight size={14}/></em></span></button>)}</div>
     {selected && <div className="reader-backdrop" onClick={()=>setSelected(null)}><article className="article-reader" onClick={e=>e.stopPropagation()}><button className="reader-close" onClick={()=>setSelected(null)} aria-label="Close article"><X/></button><img src={selected.image} alt=""/><div className="reader-body"><small>{selected.tag} · {selected.read}</small><h1>{selected.title}</h1><p className="reader-deck">{selected.excerpt}</p><div className="reader-author">Written by <b>{selected.author}</b> · Updated August 2026</div>{selected.sections.map(([heading,body],i)=><section key={heading}><span>0{i+1}</span><div><h2>{heading}</h2><p>{body}</p></div></section>)}<div className="reader-takeaway"><Sparkles/><div><b>The practical takeaway</b><p>Choose one idea from this guide, apply it to a real page this week, and record the result. Small, measured improvements compound into a durable growth system.</p></div></div></div></article></div>}
   </section>
 }
@@ -354,15 +373,26 @@ const learningPaths = [
 
 function LearnPage() {
   const [topic,setTopic]=useState('Popular')
-  const [selected,setSelected]=useState(null)
-  const openLibraryArticle=([title,excerpt])=>setSelected({title,excerpt,tag:topic.toUpperCase(),read:'8 min read',author:'HotTopBest Editorial',image:null,sections:[['Understand the core idea',`${excerpt} This guide starts with the essential context, explains why the topic matters, and gives you a clear way to evaluate your current approach.`],['Put it into practice','Begin with one real page or campaign. Work through the recommendations in order, document what you change, and avoid adding complexity that does not improve the result.'],['Measure and improve','Review quality, visitor behavior, visibility, and business outcomes together. Keep what works, refine weak points, and turn the process into a repeatable checklist.']]})
+  const openLibraryArticle=([title])=>window.location.assign(articleHref(title))
   return <><Header/><main className="learn-page">
     <section className="learn-hero"><div><span className="section-kicker">HOTTOPBEST LEARNING CENTER</span><h1>Learn how to grow<br/>in search and AI.</h1><p>Clear, practical guides for creators, marketers, and small teams—organized so you always know what to learn next.</p><a href="#learning-paths">Choose a learning path <ArrowRight/></a></div><div className="learn-hero-stack"><span className="stack-card s-one"><Bot/><b>AI Search</b><small>7 practical guides</small></span><span className="stack-card s-two"><Search/><b>SEO Fundamentals</b><small>9 essential lessons</small></span><span className="stack-card s-three"><FileText/><b>Content Systems</b><small>Build a better workflow</small></span></div></section>
-    <section className="learn-featured"><div className="learn-page-heading"><span className="section-kicker">EDITOR’S ESSENTIALS</span><h2>Start with our most useful guides.</h2><p>Current strategies, original explanations, and practical next steps—without the filler.</p></div><div className="learn-feature-grid">{editorialArticles.slice(0,5).map((article,index)=><button className={index===0?'lead':''} onClick={()=>setSelected(article)} key={article.title}><img src={article.image} alt=""/><span><small>{article.tag}</small><b>{article.title}</b><p>{article.excerpt}</p><em>{article.read} <ArrowRight/></em></span></button>)}</div></section>
+    <section className="learn-featured"><div className="learn-page-heading"><span className="section-kicker">EDITOR’S ESSENTIALS</span><h2>Start with our most useful guides.</h2><p>Current strategies, original explanations, and practical next steps—without the filler.</p></div><div className="learn-feature-grid">{editorialArticles.slice(0,5).map((article,index)=><button className={index===0?'lead':''} onClick={()=>window.location.assign(articleHref(article.title))} key={article.title}><img src={article.image} alt=""/><span><small>{article.tag}</small><b>{article.title}</b><p>{article.excerpt}</p><em>{article.read} <ArrowRight/></em></span></button>)}</div></section>
     <section className="learning-paths" id="learning-paths"><div className="learn-page-heading"><span className="section-kicker light">GUIDED LEARNING</span><h2>Pick a path. Build a skill.</h2><p>Follow a focused sequence instead of jumping between disconnected tactics.</p></div><div>{learningPaths.map((path,index)=>{const Icon=path.icon;return <article key={path.title}><span>0{index+1}</span><div className="path-icon"><Icon/></div><small>{path.label}</small><h3>{path.title}</h3><p>{path.description}</p><b>{path.lessons} lessons <ArrowRight/></b></article>})}</div></section>
     <section className="complete-library"><div className="library-sidebar"><span className="section-kicker">ALL ARTICLES</span><h2>Explore the complete library.</h2><p>Browse 57 original topics across modern SEO, AI search, content, authority, and marketing.</p><nav>{Object.keys(articleLibrary).map(name=><button className={topic===name?'active':''} onClick={()=>setTopic(name)} key={name}>{name}<span>{articleLibrary[name].length}</span></button>)}</nav></div><div className="library-content"><div className="library-title"><h3>{topic}</h3><span>{articleLibrary[topic].length} guides</span></div>{articleLibrary[topic].map((article,index)=><button onClick={()=>openLibraryArticle(article)} key={article[0]}><span>{String(index+1).padStart(2,'0')}</span><div><b>{article[0]}</b><p>{article[1]}</p></div><ArrowRight/></button>)}</div></section>
     <section className="learn-newsletter"><div><span className="section-kicker light">LEARN SOMETHING USEFUL</span><h2>One practical growth lesson every Tuesday.</h2></div><form onSubmit={e=>e.preventDefault()}><input required type="email" placeholder="you@email.com"/><button>Join free <ArrowRight/></button></form></section>
-    {selected&&<div className="reader-backdrop" onClick={()=>setSelected(null)}><article className="article-reader" onClick={e=>e.stopPropagation()}><button className="reader-close" onClick={()=>setSelected(null)}><X/></button>{selected.image&&<img src={selected.image} alt=""/>}<div className="reader-body"><small>{selected.tag} · {selected.read}</small><h1>{selected.title}</h1><p className="reader-deck">{selected.excerpt}</p><div className="reader-author">Written by <b>{selected.author}</b> · Updated August 2026</div>{selected.sections.map(([heading,body],i)=><section key={heading}><span>0{i+1}</span><div><h2>{heading}</h2><p>{body}</p></div></section>)}<div className="reader-takeaway"><Sparkles/><div><b>The practical takeaway</b><p>Choose one recommendation, apply it to a real project, and record what changes. Useful learning turns into results through focused practice.</p></div></div></div></article></div>}
+  </main><Footer/></>
+}
+
+function ArticlePage({ article }) {
+  const [copied,setCopied]=useState(false)
+  if(!article)return <><Header/><main className="not-found"><span>404</span><h1>We couldn’t find that article.</h1><a href="/learn">Browse the learning center <ArrowRight/></a></main><Footer/></>
+  const related=editorialArticles.filter(a=>a.title!==article.title).slice(0,3)
+  const copyLink=async()=>{await navigator.clipboard.writeText(window.location.href);setCopied(true);setTimeout(()=>setCopied(false),1500)}
+  return <><Header/><main className="article-page">
+    <section className="article-hero"><div className="article-breadcrumb"><a href="/learn">Learn</a><span>/</span><a href="/learn">{article.tag}</a></div><span className="section-kicker">{article.tag}</span><h1>{article.title}</h1><p>{article.excerpt}</p><div className="article-byline"><span className="author-avatar">{article.author.split(' ').map(x=>x[0]).join('').slice(0,2)}</span><div>Written by <b>{article.author}</b><small>Last updated August 28, 2026 · {article.read}</small></div></div></section>
+    {article.image&&<div className="article-cover"><img src={article.image} alt={`Editorial illustration for ${article.title}`}/></div>}
+    <div className="article-layout"><aside className="article-toc"><b>In this guide</b>{article.sections.map(([heading],i)=><a href={`#section-${i}`} key={heading}><span>0{i+1}</span>{heading}</a>)}<button onClick={copyLink}>{copied?<Check/>:<Copy/>}{copied?'Link copied':'Share this guide'}</button></aside><article className="article-content"><p className="article-opening">Good strategies reduce uncertainty. This guide turns <b>{article.title.toLowerCase()}</b> into a practical process you can apply to a real website, measure, and improve over time.</p><div className="article-callout"><Sparkles/><div><b>What you’ll get from this guide</b><p>A clear definition, an implementation workflow, common mistakes to avoid, and a simple way to measure progress.</p></div></div>{article.sections.map(([heading,body],i)=><section id={`section-${i}`} key={heading}><span className="content-number">0{i+1}</span><h2>{heading}</h2><p>{body}</p><p>{i%2===0?'The goal is not to complete a checklist for its own sake. Use each recommendation to make the page clearer, more credible, and easier for the right audience to act on.':'Keep the first version deliberately simple. A focused improvement with a recorded result teaches you more than a complicated system that nobody maintains.'}</p>{i===1&&<blockquote><b>Make it useful before making it bigger.</b><span>Strong visibility comes from clarity, evidence, and consistent execution—not content volume alone.</span></blockquote>}{i===2&&<ul><li>Choose one clear outcome and audience.</li><li>Review the current experience before adding anything new.</li><li>Document what changed and why.</li><li>Measure behavior and business impact together.</li></ul>}</section>)}<div className="article-tool-cta"><div><span>FREE TOOL</span><h3>Turn this guide into action.</h3><p>Use HotTopBest’s browser-based tools to audit, write, validate, and improve your next page.</p></div><a href="/seo-tools">Explore free tools <ArrowRight/></a></div><section><h2>Your next step</h2><p>Pick one important page and apply the first recommendation today. Record the baseline, make the improvement, and return after enough real visitors have experienced the change. That feedback loop is where useful strategy becomes sustainable growth.</p></section></article></div>
+    <section className="article-related"><span className="section-kicker">KEEP LEARNING</span><h2>Related guides</h2><div>{related.map(item=><a href={articleHref(item.title)} key={item.title}><img src={item.image} alt=""/><small>{item.tag}</small><b>{item.title}</b><span>{item.read} <ArrowRight/></span></a>)}</div></section>
   </main><Footer/></>
 }
 
@@ -371,6 +401,6 @@ function Footer() {
 }
 
 function HomePage(){return <><Header/><main><Hero/><Checker/><Tools/><ArticlesHub/><Workflow/><Learn/><Newsletter/></main><Footer/></>}
-function App(){const path=window.location.pathname.replace(/\/$/,'');return path==='/seo-tools'?<SeoToolsPage/>:path==='/learn'?<LearnPage/>:<HomePage/>}
+function App(){const path=window.location.pathname.replace(/\/$/,'');if(path==='/seo-tools')return <SeoToolsPage/>;if(path==='/learn')return <LearnPage/>;if(path.startsWith('/articles/'))return <ArticlePage article={getArticleBySlug(path.split('/').pop())}/>;return <HomePage/>}
 
 createRoot(document.getElementById('root')).render(<App />)
