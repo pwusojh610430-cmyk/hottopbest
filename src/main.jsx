@@ -137,7 +137,7 @@ function Header() {
         <button className={articlesOpen ? 'nav-link active' : 'nav-link'} onClick={() => setArticlesOpen(!articlesOpen)}>Articles <ChevronDown size={15} /></button>
         <a href="/#tools">AI Tools</a>
         <a href="/seo-tools">SEO Tools</a>
-        <a href="/#learn">Learn</a>
+        <a href="/learn">Learn</a>
         <a href="/#categories">Categories <ChevronDown size={15} /></a>
       </nav>
       <a className="nav-cta" href="/seo-tools">Explore free tools <ArrowRight size={16} /></a>
@@ -298,7 +298,7 @@ function Learn() {
   const highlights = editorialArticles.slice(1,5)
   const picks = editorialArticles.slice(5,11)
   return <section className="learn editorial" id="learn">
-    <div className="editorial-label"><span className="section-kicker">FEATURED ARTICLES</span><a href="#articles">Browse the full library <ArrowRight size={16}/></a></div>
+    <div className="editorial-label"><span className="section-kicker">FEATURED ARTICLES</span><a href="/learn">Browse the full library <ArrowRight size={16}/></a></div>
     <div className="featured-layout">
       <button className="featured-story" onClick={()=>setSelected(featured)}><img src={featured.image} alt="Illustration of an SEO strategy workspace"/><span>{featured.tag}</span><h2>{featured.title}</h2><p>{featured.excerpt}</p><small>By {featured.author} · {featured.read}</small></button>
       <div className="highlight-list">{highlights.map(article=><button onClick={()=>setSelected(article)} key={article.title}><img src={article.image} alt=""/><span><small>{article.tag}</small><b>{article.title}</b><em>{article.read}</em></span></button>)}</div>
@@ -346,11 +346,31 @@ function SeoToolsPage() {
   </main><Footer/></>
 }
 
+const learningPaths = [
+  { label:'START HERE', title:'SEO Foundations', description:'Understand crawling, intent, page quality, and measurement before moving into advanced tactics.', lessons:8, icon:Search },
+  { label:'MODERN SEARCH', title:'AI Visibility', description:'Prepare your brand and content for AI discovery, retrieval, citations, and recommendations.', lessons:7, icon:Bot },
+  { label:'CREATE BETTER', title:'Content Systems', description:'Plan, produce, edit, distribute, and refresh useful content with a repeatable workflow.', lessons:9, icon:FileText },
+]
+
+function LearnPage() {
+  const [topic,setTopic]=useState('Popular')
+  const [selected,setSelected]=useState(null)
+  const openLibraryArticle=([title,excerpt])=>setSelected({title,excerpt,tag:topic.toUpperCase(),read:'8 min read',author:'HotTopBest Editorial',image:null,sections:[['Understand the core idea',`${excerpt} This guide starts with the essential context, explains why the topic matters, and gives you a clear way to evaluate your current approach.`],['Put it into practice','Begin with one real page or campaign. Work through the recommendations in order, document what you change, and avoid adding complexity that does not improve the result.'],['Measure and improve','Review quality, visitor behavior, visibility, and business outcomes together. Keep what works, refine weak points, and turn the process into a repeatable checklist.']]})
+  return <><Header/><main className="learn-page">
+    <section className="learn-hero"><div><span className="section-kicker">HOTTOPBEST LEARNING CENTER</span><h1>Learn how to grow<br/>in search and AI.</h1><p>Clear, practical guides for creators, marketers, and small teams—organized so you always know what to learn next.</p><a href="#learning-paths">Choose a learning path <ArrowRight/></a></div><div className="learn-hero-stack"><span className="stack-card s-one"><Bot/><b>AI Search</b><small>7 practical guides</small></span><span className="stack-card s-two"><Search/><b>SEO Fundamentals</b><small>9 essential lessons</small></span><span className="stack-card s-three"><FileText/><b>Content Systems</b><small>Build a better workflow</small></span></div></section>
+    <section className="learn-featured"><div className="learn-page-heading"><span className="section-kicker">EDITOR’S ESSENTIALS</span><h2>Start with our most useful guides.</h2><p>Current strategies, original explanations, and practical next steps—without the filler.</p></div><div className="learn-feature-grid">{editorialArticles.slice(0,5).map((article,index)=><button className={index===0?'lead':''} onClick={()=>setSelected(article)} key={article.title}><img src={article.image} alt=""/><span><small>{article.tag}</small><b>{article.title}</b><p>{article.excerpt}</p><em>{article.read} <ArrowRight/></em></span></button>)}</div></section>
+    <section className="learning-paths" id="learning-paths"><div className="learn-page-heading"><span className="section-kicker light">GUIDED LEARNING</span><h2>Pick a path. Build a skill.</h2><p>Follow a focused sequence instead of jumping between disconnected tactics.</p></div><div>{learningPaths.map((path,index)=>{const Icon=path.icon;return <article key={path.title}><span>0{index+1}</span><div className="path-icon"><Icon/></div><small>{path.label}</small><h3>{path.title}</h3><p>{path.description}</p><b>{path.lessons} lessons <ArrowRight/></b></article>})}</div></section>
+    <section className="complete-library"><div className="library-sidebar"><span className="section-kicker">ALL ARTICLES</span><h2>Explore the complete library.</h2><p>Browse 57 original topics across modern SEO, AI search, content, authority, and marketing.</p><nav>{Object.keys(articleLibrary).map(name=><button className={topic===name?'active':''} onClick={()=>setTopic(name)} key={name}>{name}<span>{articleLibrary[name].length}</span></button>)}</nav></div><div className="library-content"><div className="library-title"><h3>{topic}</h3><span>{articleLibrary[topic].length} guides</span></div>{articleLibrary[topic].map((article,index)=><button onClick={()=>openLibraryArticle(article)} key={article[0]}><span>{String(index+1).padStart(2,'0')}</span><div><b>{article[0]}</b><p>{article[1]}</p></div><ArrowRight/></button>)}</div></section>
+    <section className="learn-newsletter"><div><span className="section-kicker light">LEARN SOMETHING USEFUL</span><h2>One practical growth lesson every Tuesday.</h2></div><form onSubmit={e=>e.preventDefault()}><input required type="email" placeholder="you@email.com"/><button>Join free <ArrowRight/></button></form></section>
+    {selected&&<div className="reader-backdrop" onClick={()=>setSelected(null)}><article className="article-reader" onClick={e=>e.stopPropagation()}><button className="reader-close" onClick={()=>setSelected(null)}><X/></button>{selected.image&&<img src={selected.image} alt=""/>}<div className="reader-body"><small>{selected.tag} · {selected.read}</small><h1>{selected.title}</h1><p className="reader-deck">{selected.excerpt}</p><div className="reader-author">Written by <b>{selected.author}</b> · Updated August 2026</div>{selected.sections.map(([heading,body],i)=><section key={heading}><span>0{i+1}</span><div><h2>{heading}</h2><p>{body}</p></div></section>)}<div className="reader-takeaway"><Sparkles/><div><b>The practical takeaway</b><p>Choose one recommendation, apply it to a real project, and record what changes. Useful learning turns into results through focused practice.</p></div></div></div></article></div>}
+  </main><Footer/></>
+}
+
 function Footer() {
   return <footer><div className="footer-top"><div><Logo/><p>Practical AI and SEO tools<br/>for smarter, sustainable growth.</p></div><div><b>Tools</b><a href="#tools">AI tools</a><a href="#checker">SEO checker</a><a href="#tools">Content tools</a></div><div><b>Resources</b><a href="#learn">Guides</a><a href="#learn">Comparisons</a><a href="#learn">Newsletter</a></div><div><b>Company</b><a href="#top">About</a><a href="#top">Contact</a><a href="#top">Submit a tool</a></div></div><div className="footer-bottom"><span>© 2026 HotTopBest. Built for better work.</span><span><a href="#top">Privacy</a><a href="#top">Terms</a></span></div></footer>
 }
 
 function HomePage(){return <><Header/><main><Hero/><Checker/><Tools/><ArticlesHub/><Workflow/><Learn/><Newsletter/></main><Footer/></>}
-function App(){return window.location.pathname.replace(/\/$/,'')==='/seo-tools'?<SeoToolsPage/>:<HomePage/>}
+function App(){const path=window.location.pathname.replace(/\/$/,'');return path==='/seo-tools'?<SeoToolsPage/>:path==='/learn'?<LearnPage/>:<HomePage/>}
 
 createRoot(document.getElementById('root')).render(<App />)
