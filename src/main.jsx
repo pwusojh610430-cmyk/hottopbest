@@ -161,7 +161,7 @@ function Header() {
       <Logo />
       <button className="menu-btn" onClick={() => setOpen(!open)} aria-label="Toggle menu">{open ? <X /> : <Menu />}</button>
       <nav className={open ? 'nav open' : 'nav'}>
-        <span className="nav-article-group"><a href="/learn">Articles</a><button className={articlesOpen ? 'nav-chevron active' : 'nav-chevron'} onClick={() => setArticlesOpen(!articlesOpen)} aria-label="Open article categories"><ChevronDown size={15} /></button></span>
+        <button className={articlesOpen ? 'nav-link active' : 'nav-link'} onClick={() => setArticlesOpen(!articlesOpen)} aria-expanded={articlesOpen} aria-controls="articles-menu">Articles <ChevronDown className={articlesOpen?'chevron-open':''} size={15} /></button>
         <a href="/ai-tools">AI Tools</a>
         <a href="/seo-tools">SEO Tools</a>
         <a href="/learn">Learn</a>
@@ -169,7 +169,7 @@ function Header() {
       </nav>
       <a className="nav-cta" href="/seo-tools">Explore free tools <ArrowRight size={16} /></a>
     </div>
-    {articlesOpen && <div className="mega-menu">
+    {articlesOpen && <div className="mega-menu" id="articles-menu">
       <div className="mega-inner">
         <aside><div className="mega-title">Articles</div>{Object.keys(articleLibrary).map(name=><button key={name} className={articleCategory===name?'active':''} onMouseEnter={()=>setArticleCategory(name)} onClick={()=>setArticleCategory(name)}>{name}<ArrowRight size={15}/></button>)}</aside>
         <div className="mega-content"><div className="mega-content-head"><span>{articleCategory}</span><a href="/learn" onClick={()=>setArticlesOpen(false)}>View all articles <ArrowRight size={15}/></a></div><div className="mega-links">{articleLibrary[articleCategory].map(([title,desc])=><a href={articleHref(title)} onClick={()=>setArticlesOpen(false)} key={title}><b>{title}</b><span>{desc}</span></a>)}</div><div className="mega-promo"><span><b>Free growth tools:</b> Practical AI and SEO tools, all in one place.</span><a href="/seo-tools" onClick={()=>setArticlesOpen(false)}>View tools <ArrowRight size={15}/></a></div></div>
