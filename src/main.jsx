@@ -110,7 +110,7 @@ const articleLibrary = {
 }
 
 function Logo() {
-  return <a className="logo" href="#top" aria-label="HotTopBest home">
+  return <a className="logo" href="/" aria-label="HotTopBest home">
     <span className="logo-mark"><span /><span /><span /></span>
     <span>HotTop<span>Best</span></span>
   </a>
@@ -126,12 +126,12 @@ function Header() {
       <button className="menu-btn" onClick={() => setOpen(!open)} aria-label="Toggle menu">{open ? <X /> : <Menu />}</button>
       <nav className={open ? 'nav open' : 'nav'}>
         <button className={articlesOpen ? 'nav-link active' : 'nav-link'} onClick={() => setArticlesOpen(!articlesOpen)}>Articles <ChevronDown size={15} /></button>
-        <a href="#tools">AI Tools</a>
-        <a href="#checker">SEO Tools</a>
-        <a href="#learn">Learn</a>
-        <a href="#categories">Categories <ChevronDown size={15} /></a>
+        <a href="/#tools">AI Tools</a>
+        <a href="/seo-tools">SEO Tools</a>
+        <a href="/#learn">Learn</a>
+        <a href="/#categories">Categories <ChevronDown size={15} /></a>
       </nav>
-      <a className="nav-cta" href="#tools">Explore free tools <ArrowRight size={16} /></a>
+      <a className="nav-cta" href="/seo-tools">Explore free tools <ArrowRight size={16} /></a>
     </div>
     {articlesOpen && <div className="mega-menu">
       <div className="mega-inner">
@@ -317,10 +317,31 @@ function Newsletter() {
   return <section className="newsletter"><div><span className="section-kicker light">THE SMARTER GROWTH LETTER</span><h2>One useful idea,<br/>every Tuesday.</h2></div>{done?<div className="thanks"><Check/> You’re on the list. Welcome!</div>:<form onSubmit={e=>{e.preventDefault();setDone(true)}}><p>Join creators and marketers getting practical AI and SEO tips—no noise, no hype.</p><div><input type="email" required placeholder="you@email.com"/><button>Subscribe <ArrowRight size={17}/></button></div><small>Free forever. Unsubscribe anytime.</small></form>}</section>
 }
 
+const seoToolGroups = [
+  { title:'Technical SEO', description:'Audit the essentials that help search engines and AI systems access, understand, and present your pages.', names:['SEO Site Checker','Schema Generator','llms.txt Generator','Image Compressor'] },
+  { title:'Content Optimization', description:'Plan clearer pages, improve search snippets, and turn rough drafts into useful content.', names:['AI Article Outline','Meta Description Writer','Content Rewriter'] },
+  { title:'Promotion & Distribution', description:'Transform strong ideas into focused social posts that bring the right readers back to your site.', names:['Social Post Writer'] },
+]
+
+function SeoToolsPage() {
+  const [activeTool,setActiveTool]=useState(null)
+  const [query,setQuery]=useState('')
+  const matching = name => name.toLowerCase().includes(query.toLowerCase())
+  return <><Header/><main className="seo-page">
+    <section className="seo-page-hero"><div className="seo-page-hero-inner"><span className="section-kicker light">FREE SEO & AI TOOLS</span><h1>Grow your website<br/><em>with less guesswork.</em></h1><p>Audit pages, improve content, generate technical files, and prepare your website for search and AI—all without an account.</p><div className="seo-hero-actions"><button onClick={()=>setActiveTool(tools[0])}>Run a free SEO check <ArrowRight/></button><a href="#all-seo-tools">Explore all tools</a></div><div className="seo-hero-proof"><span><Check/> Free to use</span><span><Check/> No signup</span><span><Check/> Files stay private</span></div></div><div className="seo-page-art"><div className="audit-window"><div className="audit-bar"><i/><i/><i/><span>yourwebsite.com</span></div><div className="audit-content"><div className="audit-score"><b>92</b><span>SEO score</span></div><div className="audit-lines"><i/><i/><i/><i/></div></div><div className="audit-success"><Check/><span><b>Great foundation</b><small>3 improvements found</small></span></div></div></div></section>
+    <section className="seo-page-intro" id="all-seo-tools"><div><span className="section-kicker">TOOL DIRECTORY</span><h2>Free tools for every<br/>stage of growth.</h2></div><div><p>Use one tool for a quick task, or combine them into a repeatable workflow for your website.</p><label><Search/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search all tools"/></label></div></section>
+    <section className="seo-groups">{seoToolGroups.map(group=>{const groupTools=tools.filter(t=>group.names.includes(t.name)&&matching(t.name));if(!groupTools.length)return null;return <div className="seo-group" key={group.title}><aside><span>{String(seoToolGroups.indexOf(group)+1).padStart(2,'0')}</span><h2>{group.title}</h2><p>{group.description}</p></aside><div className="seo-group-grid">{groupTools.map(tool=><ToolCard key={tool.name} tool={tool} onOpen={setActiveTool}/>)}</div></div>})}</section>
+    <section className="seo-how"><div><span className="section-kicker light">A SIMPLE WORKFLOW</span><h2>Check. Improve.<br/>Publish confidently.</h2></div><ol><li><span>01</span><div><b>Find the issue</b><p>Run a focused audit or identify the content task slowing you down.</p></div></li><li><span>02</span><div><b>Create the fix</b><p>Use the matching tool to generate, optimize, or validate your work.</p></div></li><li><span>03</span><div><b>Put it to work</b><p>Copy the result, download the file, and apply it to your website.</p></div></li></ol></section>
+    <section className="seo-faq"><span className="section-kicker">COMMON QUESTIONS</span><h2>Free SEO tools, explained.</h2><div>{[['Are these tools really free?','Yes. Every tool on this page works without an account or payment.'],['Do you upload my images or content?','No. The current tools run directly in your browser. Image compression and text processing stay on your device.'],['Does the SEO score use paid backlink data?','No. The checker reviews on-page HTML signals only. It does not claim to provide backlink, traffic, or proprietary authority data.'],['Can I use the generated output commercially?','Yes. You can use and edit the generated outlines, metadata, schema, social posts, and technical files for your own projects.']].map(([q,a])=><details key={q}><summary>{q}<span>+</span></summary><p>{a}</p></details>)}</div></section>
+    {activeTool&&<ToolModal tool={activeTool} onClose={()=>setActiveTool(null)}/>} 
+  </main><Footer/></>
+}
+
 function Footer() {
   return <footer><div className="footer-top"><div><Logo/><p>Practical AI and SEO tools<br/>for smarter, sustainable growth.</p></div><div><b>Tools</b><a href="#tools">AI tools</a><a href="#checker">SEO checker</a><a href="#tools">Content tools</a></div><div><b>Resources</b><a href="#learn">Guides</a><a href="#learn">Comparisons</a><a href="#learn">Newsletter</a></div><div><b>Company</b><a href="#top">About</a><a href="#top">Contact</a><a href="#top">Submit a tool</a></div></div><div className="footer-bottom"><span>© 2026 HotTopBest. Built for better work.</span><span><a href="#top">Privacy</a><a href="#top">Terms</a></span></div></footer>
 }
 
-function App(){return <><Header/><main><Hero/><Checker/><Tools/><ArticlesHub/><Workflow/><Learn/><Newsletter/></main><Footer/></>}
+function HomePage(){return <><Header/><main><Hero/><Checker/><Tools/><ArticlesHub/><Workflow/><Learn/><Newsletter/></main><Footer/></>}
+function App(){return window.location.pathname.replace(/\/$/,'')==='/seo-tools'?<SeoToolsPage/>:<HomePage/>}
 
 createRoot(document.getElementById('root')).render(<App />)
