@@ -384,7 +384,7 @@ const categorySprites={'Popular':popularSprite,'AI Search':aiSearchSprite,'SEO F
 
 function ArticleThumb({index,title,category,categoryIndex}){
   if(index<visualArticleImages.length)return <img src={visualArticleImages[index]} alt={`Illustration for ${title}`}/>
-  const cell=categoryIndex%9,x=(cell%3)*50,y=Math.floor(cell/3)*50
+  const cell=categoryIndex%9,x=(cell%3)*50,row=Math.floor(cell/3),y=(category==='Popular'?[0,50,100]:[9,50,91])[row]
   return <div className="sprite-thumb" style={{backgroundImage:`url(${categorySprites[category]})`,backgroundPosition:`${x}% ${y}%`}} role="img" aria-label={`Editorial illustration for ${title}`}/>
 }
 
