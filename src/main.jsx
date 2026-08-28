@@ -17,6 +17,12 @@ import seoCoursesImg from './assets/articles/seo-courses.png'
 import authorityImg from './assets/articles/domain-authority.png'
 import contentWorkflowImg from './assets/articles/content-workflow.png'
 import technicalSeoImg from './assets/articles/technical-seo.png'
+import popularSprite from './assets/articles/sprite-popular.png'
+import aiSearchSprite from './assets/articles/sprite-ai-search.png'
+import seoFundamentalsSprite from './assets/articles/sprite-seo-fundamentals.png'
+import contentMarketingSprite from './assets/articles/sprite-content-marketing.png'
+import linkBuildingSprite from './assets/articles/sprite-link-building.png'
+import marketingSprite from './assets/articles/sprite-marketing.png'
 
 const categories = ['All tools', 'SEO', 'Writing', 'Image', 'Marketing', 'Developer']
 
@@ -374,18 +380,19 @@ const learningPaths = [
 const visualArticleImages=[seoStrategyImg,seoToolkitImg,aiVisibilityImg,technicalSeoImg,backlinksImg,trafficImg,competitorImg,onPageImg,seoCoursesImg,authorityImg,contentWorkflowImg]
 const visualIcons=[Search,Bot,FileText,BarChart3,Braces,ShieldCheck,Layers3,WandSparkles,MousePointerClick,Zap]
 const allLearnArticles=Object.entries(articleLibrary).flatMap(([category,items])=>items.map(([title,excerpt])=>({title,excerpt,category})))
+const categorySprites={'Popular':popularSprite,'AI Search':aiSearchSprite,'SEO Fundamentals':seoFundamentalsSprite,'Content Marketing':contentMarketingSprite,'Link Building':linkBuildingSprite,'Marketing':marketingSprite}
 
-function ArticleThumb({index,title}){
+function ArticleThumb({index,title,category,categoryIndex}){
   if(index<visualArticleImages.length)return <img src={visualArticleImages[index]} alt={`Illustration for ${title}`}/>
-  const IconA=visualIcons[index%visualIcons.length],IconB=visualIcons[(index*3+2)%visualIcons.length]
-  const hue=(index*47)%360
-  return <div className={`generated-thumb variant-${index%4}`} style={{'--thumb-hue':hue,'--thumb-hue-two':(hue+55)%360}} role="img" aria-label={`Editorial illustration for ${title}`}><span className="thumb-orbit"/><span className="thumb-panel"><i/><i/><i/></span><span className="thumb-icon a"><IconA/></span><span className="thumb-icon b"><IconB/></span><span className="thumb-dots">••••••</span></div>
+  const cell=categoryIndex%9,x=(cell%3)*50,y=Math.floor(cell/3)*50
+  return <div className="sprite-thumb" style={{backgroundImage:`url(${categorySprites[category]})`,backgroundPosition:`${x}% ${y}%`}} role="img" aria-label={`Editorial illustration for ${title}`}/>
 }
 
 function LearnPage() {
+  const featuredVisual=allLearnArticles.slice(0,5)
   return <><Header/><main className="learn-page">
     <section className="learn-hero"><div><span className="section-kicker">HOTTOPBEST LEARNING CENTER</span><h1>Learn how to grow<br/>in search and AI.</h1><p>Clear, practical guides for creators, marketers, and small teams—organized so you always know what to learn next.</p><a href="#learning-paths">Choose a learning path <ArrowRight/></a></div><div className="learn-hero-stack"><span className="stack-card s-one"><Bot/><b>AI Search</b><small>7 practical guides</small></span><span className="stack-card s-two"><Search/><b>SEO Fundamentals</b><small>9 essential lessons</small></span><span className="stack-card s-three"><FileText/><b>Content Systems</b><small>Build a better workflow</small></span></div></section>
-    <section className="learn-featured full-visual-library"><div className="learn-page-heading"><span className="section-kicker">EDITOR’S ESSENTIALS</span><h2>Start with our most useful guides.</h2><p>57 visual guides with current strategies, original explanations, and practical next steps—without the filler.</p></div><div className="visual-filter-row">{Object.keys(articleLibrary).map(category=><a href={`#visual-${articleSlug(category)}`} key={category}>{category}<span>{articleLibrary[category].length}</span></a>)}</div><div className="learn-feature-grid expanded-visual-grid">{allLearnArticles.map((article,index)=><button id={index===0||allLearnArticles[index-1].category!==article.category?`visual-${articleSlug(article.category)}`:undefined} data-category={article.category} className={index===0?'lead':''} onClick={()=>window.location.assign(articleHref(article.title))} key={`${article.category}-${article.title}`}><ArticleThumb index={index} title={article.title}/><span><small>{article.category}</small><b>{article.title}</b><p>{article.excerpt}</p><em>{8+(index%9)} min read <ArrowRight/></em></span></button>)}</div></section>
+    <section className="learn-featured full-visual-library"><div className="learn-page-heading"><span className="section-kicker">EDITOR’S ESSENTIALS</span><h2>Start with our most useful guides.</h2><p>57 visual guides with current strategies, original explanations, and practical next steps—without the filler.</p></div><div className="visual-filter-row">{Object.keys(articleLibrary).map(category=><a href={`#visual-${articleSlug(category)}`} key={category}>{category}<span>{articleLibrary[category].length}</span></a>)}</div><div className="visual-feature-layout">{featuredVisual.map((article,index)=><button className={index===0?'lead':''} onClick={()=>window.location.assign(articleHref(article.title))} key={article.title}><ArticleThumb index={index} title={article.title} category={article.category} categoryIndex={index}/><span><small>{article.category}</small><b>{article.title}</b><p>{article.excerpt}</p><em>{8+(index%9)} min read <ArrowRight/></em></span></button>)}</div><div className="visual-category-list">{Object.entries(articleLibrary).map(([category,items])=>{const visibleItems=category==='Popular'?items.slice(5):items;const globalOffset=allLearnArticles.findIndex(a=>a.category===category)+(category==='Popular'?5:0);return <section id={`visual-${articleSlug(category)}`} key={category}><div className="visual-category-heading"><div><span>EXPLORE TOPIC</span><h3>{category}</h3></div><small>{visibleItems.length} guides</small></div><div className="visual-standard-grid">{visibleItems.map(([title,excerpt],localIndex)=><button onClick={()=>window.location.assign(articleHref(title))} key={title}><ArticleThumb index={globalOffset+localIndex} title={title} category={category} categoryIndex={localIndex+(category==='Popular'?5:0)}/><span><small>{category}</small><b>{title}</b><p>{excerpt}</p><em>{8+((globalOffset+localIndex)%9)} min read <ArrowRight/></em></span></button>)}</div></section>})}</div></section>
     <section className="learning-paths" id="learning-paths"><div className="learn-page-heading"><span className="section-kicker light">GUIDED LEARNING</span><h2>Pick a path. Build a skill.</h2><p>Follow a focused sequence instead of jumping between disconnected tactics.</p></div><div>{learningPaths.map((path,index)=>{const Icon=path.icon;return <article key={path.title}><span>0{index+1}</span><div className="path-icon"><Icon/></div><small>{path.label}</small><h3>{path.title}</h3><p>{path.description}</p><b>{path.lessons} lessons <ArrowRight/></b></article>})}</div></section>
     <section className="learn-newsletter"><div><span className="section-kicker light">LEARN SOMETHING USEFUL</span><h2>One practical growth lesson every Tuesday.</h2></div><form onSubmit={e=>e.preventDefault()}><input required type="email" placeholder="you@email.com"/><button>Join free <ArrowRight/></button></form></section>
   </main><Footer/></>
